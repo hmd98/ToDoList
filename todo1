@@ -1,0 +1,57 @@
+#!/bin/bash
+
+declare -A tasklist
+if [ $1 = add ];then
+priority="L"
+shift
+ while [ ! -z "$1" ]
+ do
+	case $1 in
+	-t | --title)
+		if [ -z "$2" ];then
+			echo "Option -t|--title Needs a Parameter"
+			exit 1
+		else
+			Title=true 
+	    	tasklist+=(["$2"]=$priority)
+	    	lasttask="$2"
+		fi 
+		shift
+		shift ;;
+		
+	-p | --priority)
+		if [ $2 != L ] && [ $2 != M ] && [ $2 != H ];then
+			echo "Option -p|--priority Only Accept L|M|H"
+			exit 1
+		else
+     		tasklist[$lasttask]="$2"
+		fi 
+		shift
+		shift ;;
+		
+	*)
+		echo "Command Not Supported!" ;;
+	esac
+ done
+
+for i in "${!tasklist[@]}"; do
+  echo "0,${tasklist[$i]},\"$i\"" >> tasks.csv
+done
+
+elif [ $1 = list ];then
+	awk -F\, '{print NR " | "$1" | " $2" | "$3}' tasks.csv
+
+elif [ $1 = clear ];then
+	>tasks.csv
+
+elif [ $1 = find ];then
+	awk -F\, '{print NR " | "$1" | " $2" | "$3}' tasks.csv | grep $2
+	
+elif [ $1 = done ];then
+	l=$2
+	task=$(awk -v line="$l" 'NR==line{print}' tasks.csv)
+	dtask=$(awk -v line="$l" 'NR==line{sub(/0/,1);print}' tasks.csv)
+	sed -i "s/$task/$dtask/" tasks.csv
+else
+	echo "Command Not Supported!"
+fi
