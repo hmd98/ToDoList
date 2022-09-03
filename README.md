@@ -22,5 +22,5 @@
 *tasks will be saved to "tasks.csv"
 
 *example:
-  bash todo.sh add -t "First Task" -p H
+  bash todo1.sh add -t "First Task" -p H
   tasks.csv --> 0,H,"First Task"
